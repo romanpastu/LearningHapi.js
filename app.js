@@ -1,105 +1,39 @@
 const Hapi = require('hapi')
-const Joi = require('joi')
 const Mongoose = require('mongoose')
+const fetch = require('node-fetch');
+const Wreck = require('wreck');
+//https://explorer.mchain.network/api/blocks?limit=5
 
 const server = new Hapi.Server({
-    "host":"localhost",
-    "port":3000
-});
+    "host": "localhost",
+    "port": 3005
+})
 
-Mongoose.connect("mongodb://localhost/person", { useNewUrlParser: true})
+Mongoose.connect('mongodb://localhost/mchain', { useNewUrlParser: true })
 
-const PersonModel = Mongoose.model("person",{
-    firstname: String,
-    lastname: String
+const BlockModel = Mongoose.model('block',{
+    height: Number,
+    size: Number,
+    time: Number
 })
 
 server.route({
-    method: "POST",
-    path:"/person",
-    options:{
-        validate:{
-            payload: {
-                firstname: Joi.string().min(3).required(),
-                lastname : Joi.string().required()
-            },
-            failAction: (request, h , error ) => {
-                return error.isJoi ? h.response(error.details[0]).takeover() : h.response(error).takeover();
-            }
-        }
-    },
-    handler: async (request, h) => {
-        try{
-            var person = new PersonModel(request.payload);
-            var result = await person.save();
-            return h.response(result);
-        }catch(error){
-            return h.response(error).code(500);
-        }
-    }
-})
-
-server.route({
-    method: "GET",
-    path: "/people",
+    method:"GET",
+    path:"/",
     handler: async (request,h) => {
-        try{
-            var people = await PersonModel.find().exec();
-            return h.response(people);
-        }catch(error){
-            return h.response(error).code(500);
-        }
+        const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/blocks?limit=50');
+        let myJson = JSON.parse(payload.toString()).blocks
+
+         for (let i = 0 ; myJson.length;i++){
+            var block = new BlockModel({height: myJson[i].height, size : myJson[i].size, time: myJson[i].time});
+            block.save();
+         }
+
+
+        return "hola"
     }
 })
 
-server.route({
-    method: "GET",
-    path: "/person/{id}",
-    handler: async (request,h) => {
-        try{
-            var person = await PersonModel.findById(request.params.id).exec();
-            return h.response(person);
-        }catch(error){
-            return h.response(error).code(500);
-        }
-    }
-})
 
-server.route({
-    method: "PUT",
-    path: "/person/{id}",
-    options:{
-        validate:{
-            payload:{
-                firstname: Joi.string().optional(),
-                lastname: Joi.string().optional()
-            },
-            failAction: (request, h, error) => {
-                return error.isJoi ? h.response(error.details[0]).takeover() : h.response(error).takeover();
-            }
-        }
-    },
-    handler: async (request,h) => {
-        try{
-            var result = await PersonModel.findOneAndUpdate(request.paramlis, request.payload, {new: true});
-            return h.response(result);
-        }catch(error){
-            return h.response(error).code(500);
-        }
-    }
-})
-
-server.route({
-    method: "DELETE",
-    path: "/person/{id}",
-    handler: async (request,h) => {
-        try{
-            var result = await PersonModel.findOneAndDelete(request.params.id);
-            return h.response(result);
-        }catch(error){
-            return h.response(error).code(500);
-        }
-    }
-})
 
 server.start();
