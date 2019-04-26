@@ -1,6 +1,5 @@
 const Hapi = require('hapi')
 const Mongoose = require('mongoose')
-const fetch = require('node-fetch');
 const Wreck = require('wreck');
 //https://explorer.mchain.network/api/blocks?limit=5
 
