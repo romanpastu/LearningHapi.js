@@ -97,8 +97,9 @@ server.route({
     handler: async (request, h) => {
         try{
             var jsonPayload = JSON.parse(request.payload);
-            console.log(jsonPayload)
-            var result = await BlockModel.findOneAndUpdate({hash: request.params.hash.toString()}, {$set: {height: jsonPayload.height}} , {new: true});
+            var firstValue = Object.keys(jsonPayload)[0].toString()
+            console.log(firstValue)
+            var result = await BlockModel.findOneAndUpdate({hash: request.params.hash.toString()}, {$set: { height : jsonPayload[Object.keys(jsonPayload)[0]]}} , {new: true});
             return h.response(result);
         }catch{
             
