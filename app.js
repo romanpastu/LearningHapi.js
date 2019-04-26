@@ -10,6 +10,7 @@ const server = new Hapi.Server({
 Mongoose.connect('mongodb://localhost/mchain', { useNewUrlParser: true })   //indica url de la bd
 
 const BlockModel = Mongoose.model('blocks', {        //modelo blocks de la bd
+    hash: String,
     height: Number,
     size: Number,
     time: Number
@@ -21,7 +22,7 @@ const StatsModel = Mongoose.model('stats', {      //modelo stats de la bd
     difficulty: Number
 
 })
-
+//gets block info
 server.route({
     method: "GET",
     path: "/api/blockinfo",
@@ -31,14 +32,14 @@ server.route({
         let myJson = JSON.parse(payload.toString()).blocks
 
         for (let i = 0; i < myJson.length; i++) {
-            var block = new BlockModel({ height: myJson[i].height, size: myJson[i].size, time: myJson[i].time });
+            var block = new BlockModel({ hash: myJson[i].hash ,height: myJson[i].height, size: myJson[i].size, time: myJson[i].time });
             await block.save();
         }
 
-        return  BlockModel.find({});
+        return BlockModel.find({});
     }
 })
-
+//gets total stats
 server.route({
     method: "GET",
     path: "/api/stats",
@@ -54,10 +55,57 @@ server.route({
         });
         await stats.save();
 
-        return  StatsModel.find({});
+        return StatsModel.find({});
     }
 })
 
+//get block by hash
+server.route({
+    method: "GET",
+    path:"/api/blockinfo/{hash}",
+    handler: async (request,h) => {
+        try{
+            var block = await BlockModel.findOne({hash: request.params.hash}).exec();
+            return h.response(block);
+        }catch(error){
+            console.log(request.params.hash)
+            return h.response(error).code(500);
+        }   
+    }
+})
+
+//Delete block by block id
+server.route({
+    method: "DELETE",
+    path: "/api/blockinfo/{hash}",
+    handler: async (request,h) => {
+        try{
+            var result = await BlockModel.findOneAndDelete({hash: request.params.hash.toString()});
+            return h.response(result);
+        }catch(error){
+            console.log(request.params.hash)
+            return h.response(error).code(500);
+        }
+    }
+})
+
+//Update block
+
+server.route({
+    method: "PUT",
+    path:"/api/blockinfo/{hash}",
+    handler: async (request, h) => {
+        try{
+            var jsonPayload = JSON.parse(request.payload);
+            console.log(jsonPayload)
+            var result = await BlockModel.findOneAndUpdate({hash: request.params.hash.toString()}, {$set: {height: jsonPayload.height}} , {new: true});
+            return h.response(result);
+        }catch{
+            
+            return h.response(error).code(500);
+        }
+    }
+})
 
 
 server.start();
