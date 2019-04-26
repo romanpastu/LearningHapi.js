@@ -41,7 +41,7 @@ server.route({
 
 server.route({
     method: "GET",
-    path: "/api/statics",
+    path: "/api/stats",
     handler: async (request, h) => {
         await StatsModel.deleteMany({});
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/statistics/total');
@@ -50,13 +50,13 @@ server.route({
         console.log(myJson)
 
         var stats = new StatsModel({
-            mined_currency_amount: parseInt(myJson.mined_currency_amount),
-            number_of_transactions: parseIntmyJson.number_of_transactions,
+            mined_currency_amount: myJson.mined_currency_amount,
+            number_of_transactions: myJson.number_of_transactions,
             difficulty: myJson.difficulty
         });
         await stats.save();
 
-        return await StatsModel.find({});
+        return  StatsModel.find({});
     }
 })
 
