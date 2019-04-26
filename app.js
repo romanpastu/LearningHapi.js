@@ -29,7 +29,7 @@ server.route({
         await BlockModel.deleteMany({})
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/blocks?limit=50');
         let myJson = JSON.parse(payload.toString()).blocks
-        // console.log(myJson)
+
         for (let i = 0; i < myJson.length; i++) {
             var block = new BlockModel({ height: myJson[i].height, size: myJson[i].size, time: myJson[i].time });
             await block.save();
@@ -47,8 +47,6 @@ server.route({
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/statistics/total');
         let myJson = JSON.parse(payload.toString());
 
-        console.log(myJson)
-
         var stats = new StatsModel({
             mined_currency_amount: myJson.mined_currency_amount,
             number_of_transactions: myJson.number_of_transactions,
@@ -59,7 +57,6 @@ server.route({
         return  StatsModel.find({});
     }
 })
-
 
 
 
