@@ -35,7 +35,7 @@ server.route({
             await block.save();
         }
 
-        return await BlockModel.find({});
+        return  BlockModel.find({});
     }
 })
 
@@ -46,7 +46,7 @@ server.route({
         await StatsModel.deleteMany({});
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/statistics/total');
         let myJson = JSON.parse(payload.toString());
-        
+
         console.log(myJson)
 
         var stats = new StatsModel({
