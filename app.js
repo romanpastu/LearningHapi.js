@@ -22,10 +22,10 @@ const StatsModel = Mongoose.model('stats', {      //modelo stats de la bd
     difficulty: Number
 
 })
-//gets block info
+//gets and updates blockinfo
 server.route({
     method: "GET",
-    path: "/api/blockinfo",
+    path: "/api/updateblockinfo",
     handler: async (request, h) => {
         await BlockModel.deleteMany({})
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/blocks?limit=50');
@@ -39,6 +39,15 @@ server.route({
         return BlockModel.find({});
     }
 })
+//gets block info from the database
+server.route({
+    method: "GET",
+    path: "/api/blockinfo",
+    handler: async (request, h) => {
+        return BlockModel.find({});
+    }
+})
+
 //gets total stats
 server.route({
     method: "GET",
@@ -95,18 +104,16 @@ server.route({
     method: "PUT",
     path:"/api/blockinfo/{hash}",
     handler: async (request, h) => {
-        try{
-            var jsonPayload = JSON.parse(request.payload);
-            var firstValue = Object.keys(jsonPayload)[0].toString()
-            console.log(firstValue)
-            var result = await BlockModel.findOneAndUpdate({hash: request.params.hash.toString()}, {$set: { height : jsonPayload[Object.keys(jsonPayload)[0]]}} , {new: true});
+         try{
+            const { hash } = request.params.hash
+             
+            var result = await BlockModel.findOneAndUpdate(request.params.hash,   request.payload  ,  {new: true});
             return h.response(result);
         }catch{
-            
             return h.response(error).code(500);
         }
     }
 })
-
+//{$set: { height : jsonPayload[Object.keys(jsonPayload)[0]]}} ,
 
 server.start();
