@@ -111,7 +111,8 @@ server.route({
     path:"/api/blockinfo/{hash}",
     handler: async (request, h) => {
          try{
-            var result = await BlockModel.findOneAndUpdate(request.params.hash,  JSON.parse(request.payload ),  {new: true});
+            const { hash } = request.params
+            var result = await BlockModel.findOneAndUpdate({ hash },  JSON.parse(request.payload ),  {new: true});
             return h.response(result);
         }catch{
             return h.response(error).code(500);
