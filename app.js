@@ -8,13 +8,19 @@ const server = new Hapi.Server({
 })
 
 Mongoose.connect('mongodb://localhost/mchain', { useNewUrlParser: true })   //indica url de la bd
-
-const BlockModel = Mongoose.model('blocks', {        //modelo blocks de la bd
+//
+const schema = new Mongoose.Schema({
     hash: String,
     height: Number,
     size: Number,
     time: Number
-})
+  })
+
+const BlockModel = Mongoose.model('blocks', schema)
+
+
+//
+
 
 const StatsModel = Mongoose.model('stats', {      //modelo stats de la bd
     mined_currency_amount: Number,
@@ -105,15 +111,13 @@ server.route({
     path:"/api/blockinfo/{hash}",
     handler: async (request, h) => {
          try{
-            const { hash } = request.params.hash
-             
-            var result = await BlockModel.findOneAndUpdate(request.params.hash,   request.payload  ,  {new: true});
+            var result = await BlockModel.findOneAndUpdate(request.params.hash,  JSON.parse(request.payload ),  {new: true});
             return h.response(result);
         }catch{
             return h.response(error).code(500);
         }
     }
 })
-//{$set: { height : jsonPayload[Object.keys(jsonPayload)[0]]}} ,
+
 
 server.start();
