@@ -110,7 +110,7 @@ module.exports = [
                 console.log(request.payload)
                 console.log(request.params)
                 const { hash } = request.params
-                var result = await BlockModel.findOneAndUpdate({ hash }, JSON.parse(request.payload), { new: true });
+                var result = await BlockModel.findOneAndUpdate({ hash }, request.payload, { new: true });
                 return h.response(result);
             } catch{
                 return h.response(error).code(500);
