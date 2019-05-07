@@ -48,6 +48,8 @@ module.exports = [
         }
     },
 
+
+
     //gets total stats
     {
         method: "GET",
@@ -100,14 +102,40 @@ module.exports = [
 
     //Update block
     {
-        method: "PUT",
+
+        method: "POST",
         path: "/api/blockinfo/{hash}",
         handler: async (request, h) => {
             try {
+                console.log(request.payload)
+                console.log(request.params)
                 const { hash } = request.params
                 var result = await BlockModel.findOneAndUpdate({ hash }, JSON.parse(request.payload), { new: true });
                 return h.response(result);
             } catch{
+                return h.response(error).code(500);
+            }
+        }
+    },
+
+    //add new block
+    {
+        method: "POST",
+        path: "/api/createblock",
+        handler: async (request, h) => {
+            try {
+                var payload = request.payload;
+                console.log(request.payload)
+                const block = new BlockModel({
+                    hash: payload.hash,
+                    height: Number(payload.height),
+                    size: Number(payload.size),
+                    time: Number(payload.time)
+                });
+                block.save().then(() => console.log('Saved'));
+
+                return { message: 'Added' };
+            } catch {
                 return h.response(error).code(500);
             }
         }
