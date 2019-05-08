@@ -91,6 +91,7 @@ module.exports = [
         path: "/api/blockinfo/{hash}",
         handler: async (request, h) => {
             try {
+                console.log(request.params.hash.toString())
                 var result = await BlockModel.findOneAndDelete({ hash: request.params.hash.toString() });
                 return h.response(result);
             } catch (error) {
