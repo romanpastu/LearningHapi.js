@@ -39,8 +39,7 @@ module.exports = [
         path: "/api/blockinfo/{hash}",
         handler: async (request, h) => {
             try {
-                var block = await mBlockModel.BlockModel.findOne({ hash: request.params.hash }).exec();
-                return h.response(block);
+               return functions.getBlockByHash(request,h);
             } catch (error) {
                 console.log(request.params.hash)
                 return h.response(error).code(500);

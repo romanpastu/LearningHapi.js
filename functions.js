@@ -50,7 +50,7 @@ module.exports = {
         var result = await mBlockModel.BlockModel.findOneAndUpdate({ hash }, request.payload, { new: true });
         return h.response(result);
     },
-    
+
     //creates a new block
     async createBlock(request) {
         var payload = request.payload;
@@ -63,6 +63,12 @@ module.exports = {
         block.save().then(() => console.log('Saved'));
 
         return { message: 'Added' };
+    },
+
+    //returns block by hash
+    async getBlockByHash(request, h) {
+        var block = await mBlockModel.BlockModel.findOne({ hash: request.params.hash }).exec();
+        return h.response(block);
     }
 
 
