@@ -9,7 +9,7 @@ const server = new Hapi.Server({
     
 })
 
-Mongoose.connect('mongodb://localhost/mchain', { useNewUrlParser: true })   //indica url de la bd
+Mongoose.connect('mongodb://localhost/mchain', { useNewUrlParser: true })   //establishes the database connection
 
 server.route(routes);
 
