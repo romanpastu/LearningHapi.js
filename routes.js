@@ -69,7 +69,7 @@ module.exports = [
         handler: async (request, h) => {
             try {
                 return functions.updateBlock(request, h);
-            } catch{
+            } catch(error){
                 return h.response(error).code(500);
             }
         }
@@ -82,7 +82,7 @@ module.exports = [
         handler: async (request, h) => {
             try {
                 return functions.createBlock(request);
-            } catch {
+            } catch (error){
                 return h.response(error).code(500);
             }
         }
