@@ -3,6 +3,7 @@ const mBlockModel = require('./models/BlockModel')
 const mStatsModel = require('./models/StatsModel')
 
 module.exports = {
+    //updates and resets the blockinfo
     async updateBlockInfo() {
         await mBlockModel.BlockModel.deleteMany({})
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/blocks?limit=50');
@@ -16,10 +17,12 @@ module.exports = {
         return mBlockModel.BlockModel.find({});
     },
 
+    //returns the blockinfo
     async getBlockInfo() {
         return mBlockModel.BlockModel.find({});
     },
 
+    //returns the stats
     async getStats() {
         await mStatsModel.StatsModel.deleteMany({});
         const { res, payload } = await Wreck.get('https://explorer.mchain.network/api/statistics/total');
@@ -35,17 +38,20 @@ module.exports = {
         return mStatsModel.StatsModel.find({});
     },
 
+    //deletes a block given its id
     async deleteById(request, h) {
         var result = await mBlockModel.BlockModel.findOneAndDelete({ hash: request.params.hash.toString() });
         return h.response(result);
     },
 
+    //updates a block given its hash
     async updateBlock(request, h) {
         const { hash } = request.params
         var result = await mBlockModel.BlockModel.findOneAndUpdate({ hash }, request.payload, { new: true });
         return h.response(result);
     },
-
+    
+    //creates a new block
     async createBlock(request) {
         var payload = request.payload;
         const block = new mBlockModel.BlockModel({
